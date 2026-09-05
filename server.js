@@ -13,7 +13,16 @@ const { WebSocketServer } = require('ws');
 const Database = require('better-sqlite3');
 
 const PORT = process.env.PORT || 8787;
-const db = new Database(process.env.DB_PATH || 'monkeynet.db');
+
+/* Hosting platforms mount the persistent disk at boot, and a missing folder
+   is a hard crash in SQLite rather than a warning. Create it ourselves. */
+const DB_PATH = process.env.DB_PATH || 'monkeynet.db';
+const dbDir = require('path').dirname(DB_PATH);
+if (dbDir && dbDir !== '.') {
+  try { require('fs').mkdirSync(dbDir, { recursive: true }); }
+  catch (e) { console.error(`Could not create ${dbDir}: ${e.message}`); }
+}
+const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.exec(`
 CREATE TABLE IF NOT EXISTS users (
@@ -246,4 +255,4 @@ setInterval(() => {
   db.prepare('DELETE FROM challenges WHERE created < ?').run(now() - 300_000);
 }, 300_000).unref();
 
-server.listen(PORT, () => console.log(`MonkeyNet listening on :${PORT}`));
+server.listen(PORT, '0.0.0.0', () => console.log(`MonkeyNet listening on :${PORT} (db: ${DB_PATH})`));
