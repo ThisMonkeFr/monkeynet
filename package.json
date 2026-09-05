@@ -1,0 +1,14 @@
+{
+  "name": "monkeynet",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Friends, requests and direct messages for Monkey Client",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "express": "^4.21.1",
+    "pg": "^8.13.1",
+    "ws": "^8.18.0"
+  }
+}
